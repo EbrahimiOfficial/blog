@@ -13,7 +13,7 @@ class Post(TimeStampedModel):  # I usually use TimeStampedModel because it handl
     title = models.CharField(max_length=255)
     text = models.TextField()
     rating_count = models.IntegerField(default=0)
-    average_rating = models.DecimalField(max_digits=4, decimal_places=3, default=0)
+    average_rating = models.DecimalField(max_digits=4, decimal_places=3, default=3)
     should_update_average_rating = models.BooleanField(default=False)
 
     class Meta:
@@ -25,8 +25,8 @@ class Post(TimeStampedModel):  # I usually use TimeStampedModel because it handl
         return self.title
 
     def create_or_update_rating(self, user, score):
-        if not 1 <= score <= 5:
-            raise BadRequestException("score should be greater than or equal to 1 and lower than or equal to 5")
+        if not 0 <= score <= 5:
+            raise BadRequestException("score should be greater than or equal to 0 and lower than or equal to 5")
         with django_transaction.atomic():
             rating, is_created = Rating.objects.get_or_create(post=self, user=user, defaults={"score": score})
             if is_created:
