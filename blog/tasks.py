@@ -5,7 +5,8 @@ from blog.models import Post
 @shared_task()
 def update_post_average_rating_task(post_id):
     try:
-        Post.update_average_rating(post_id=post_id)
+        # Post.update_average_rating(post_id=post_id)
+        Post.update_hourly_aggregated_average_rating(post_id=post_id)
     except Exception as e:
         print(e)  # TODO: add log
 

@@ -3,6 +3,7 @@ from django.db import transaction as django_transaction
 from django.core.cache import cache
 from django.contrib.auth.models import User
 from django.db.models import F, Avg, Prefetch
+from django.db.models.functions.datetime import TruncHour
 
 from model_utils.models import TimeStampedModel
 
@@ -55,7 +56,28 @@ class Post(TimeStampedModel):  # I usually use TimeStampedModel because it handl
                 post.average_rating = 3  # set to 3 if there are no ratings
 
             post.should_update_average_rating = False
-            post.save()
+            post.save(update_fields=["average_rating", "should_update_average_rating"])
+
+    @staticmethod
+    def update_hourly_aggregated_average_rating(post_id):
+        with django_transaction.atomic():
+            post = Post.objects.filter(id=post_id).select_for_update().get(id=post_id)
+
+            if not post.should_update_average_rating:
+                return
+
+            hourly_averages = Rating.objects.filter(post=post).annotate(
+                rating_hour=TruncHour('modified')).values('rating_hour').annotate(hourly_average=Avg('score'))
+
+            if hourly_averages:
+                final_average = hourly_averages.aggregate(final_average=Avg('hourly_average'))['final_average']
+            else:
+                final_average = None
+
+            post.average_rating = final_average if final_average is not None else 3
+
+            post.should_update_average_rating = False
+            post.save(update_fields=["average_rating", "should_update_average_rating"])
 
     @staticmethod
     def get_posts_and_user_ratings_v1(user):
@@ -143,5 +165,6 @@ class Rating(TimeStampedModel):  # I usually use TimeStampedModel because it han
         unique_together = [["post", "user"]]
         indexes = [
             models.Index(fields=['post', 'user']),
+            models.Index(fields=['post', 'modified']),
         ]
 

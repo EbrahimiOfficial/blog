@@ -7,7 +7,7 @@ from blog.models import Post
 from utils.exceptions import BadRequestException
 
 
-class PostListView(APIView):
+class PostListView(APIView):  # Since pagination was not mentioned in the task details, I did not include it either
     # permission_classes = [IsAuthenticated]
 
     def get(self, request):
