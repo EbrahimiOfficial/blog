@@ -52,7 +52,7 @@ class Post(TimeStampedModel):  # I usually use TimeStampedModel because it handl
             if average_rating is not None:
                 post.average_rating = average_rating
             else:
-                post.average_rating = 0  # set to 0 if there are no ratings
+                post.average_rating = 3  # set to 3 if there are no ratings
 
             post.should_update_average_rating = False
             post.save()
@@ -64,7 +64,7 @@ class Post(TimeStampedModel):  # I usually use TimeStampedModel because it handl
             posts = Post.objects.all().only('id', 'title', 'average_rating', 'rating_count')
             posts_data = list(posts)
             cache.set('posts_data', posts_data, timeout=60)
-        serialized_posts = []
+        serialized_posts = [] #  Due to the importance of speed, I did not use a serializer because it slows down the process.
         if user:
             user_ratings = Rating.objects.filter(
                 post_id__in=[post.id for post in posts_data], user=user).values('post_id', 'score')
@@ -101,7 +101,8 @@ class Post(TimeStampedModel):  # I usually use TimeStampedModel because it handl
                     to_attr='user_ratings'
                 )
             )
-            serialized_data = []
+            serialized_data = [] # Due to the importance of speed, I did not use a serializer because it slows down the process.
+
             for post in posts:
                 user_rating = post.user_ratings[0].score if post.user_ratings else None
                 post_data = {

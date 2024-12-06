@@ -33,8 +33,7 @@ class RatingCreateUpdateView(APIView):
             try:
                 post = Post.objects.get(id=request_body["post_id"])
             except Post.DoesNotExist:
-                return Response({"detail": "post with given post_id does not exist."},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "post with given post_id does not exist."}, status=status.HTTP_400_BAD_REQUEST)
             rating = post.create_or_update_rating(user=request.user, score=request_body["score"])
             return Response({"success": True}, status=status.HTTP_200_OK)
         except BadRequestException as bre:
