@@ -57,6 +57,33 @@ This project is containerized using Docker for easy deployment and local develop
 
 ---
 
+3. **Run Celery and Celery Beat:**
+   Celery is used to handle asynchronous tasks, and Celery Beat schedules periodic tasks.
+
+   - **Start Celery Worker Queues:**
+     Run the following commands to start the Celery workers:
+
+     ```bash
+     celery -A bitpin worker -l info --concurrency=2
+     ```
+
+     ```bash
+     celery -A bitpin worker -Q blog_queue -n worker -l info --concurrency=2
+     ```
+
+   - **Start Celery Beat:**
+     Run the following command to start the Celery Beat scheduler:
+
+     ```bash
+     celery -A bitpin  beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+     ```
+
+
+   **Tip:** It’s a good idea to use separate terminals or tmux sessions to monitor these services.
+
+---
+
+Let me know if you'd like further customization or additional clarifications.
 ## Endpoints
 
 ### 1. **List Posts**
