@@ -141,3 +141,28 @@ Submit a rating for a specific post. If the post is already rated by the user, t
 
 ---
 
+# **Problem**
+
+In scenarios where a large group of users intentionally manipulates the ratings of a post, short-term rating spikes can distort the overall rating. This leads to inaccurate representation of user sentiment and undermines the integrity of the rating system. 
+
+---
+
+## **Solution**
+
+The solution involves:
+
+- **Grouping Ratings by Hour**:
+  - Ratings are grouped into hourly intervals.
+  - An average rating is calculated for each hour.
+
+- **Computing the Final Average**:
+  - The final average rating is derived from the average of all hourly averages.
+  - This prevents any single hour (with unusually high or low activity) from dominating the final score.
+
+- **Assigning a Default Rating**:
+  - If no ratings exist for the post, a default rating of `3` is assigned to ensure consistency.
+
+- **Controlling Updates**:
+  - Updates to the average rating are performed only when a specific flag (`should_update_average_rating`) is set. This avoids redundant recalculations and ensures efficient updates. 
+
+---
